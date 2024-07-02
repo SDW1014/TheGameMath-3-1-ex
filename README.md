@@ -12,6 +12,7 @@ Vector2 currentPosition(100.0f, 100.0f); // 현재 위치
 ### 2. 게임 로직 업데이트 함수: `SoftRenderer::Update2D`
 이 함수는 게임 로직을 업데이트해.
 
+```cpp
 void SoftRenderer::Update2D(float InDeltaSeconds)
 {
     auto& g = Get2DGameEngine();
@@ -24,6 +25,7 @@ void SoftRenderer::Update2D(float InDeltaSeconds)
 
     currentPosition += deltaPosition;
 }
+```
 
 - `Get2DGameEngine()`를 통해 게임 엔진을 참조해.
 - `InputManager`를 사용해서 입력을 받아와.
@@ -35,6 +37,7 @@ void SoftRenderer::Update2D(float InDeltaSeconds)
 ### 3. 렌더링 함수: `SoftRenderer::Render2D`
 이 함수는 업데이트된 위치를 기반으로 객체를 렌더링해.
 
+```cpp
 void SoftRenderer::Render2D()
 {
     auto& r = GetRenderer();
@@ -59,6 +62,7 @@ void SoftRenderer::Render2D()
 
     r.PushStatisticText("Coordinate ; " + currentPosition.ToString());
 }
+```
 
 - `GetRenderer()`를 통해 렌더러를 참조해.
 - `DrawGizmo2D()`를 호출해서 배경에 격자를 그려.
