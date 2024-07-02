@@ -53,8 +53,11 @@ void SoftRenderer::LoadScene2D()
 }
 
 // 게임 로직과 렌더링 로직이 공유하는 변수
-// 2024 07 02 VALUE
+// 2024 07 02 VALUE START =================================================================================================
+// 설명 : 게임 로직과 렌더링 로직이 공유하는 변수를 선언한다.
+
 Vector2 currentPosition(100.0f, 100.0f); // 현재 위치
+// 2024 07 02 VALUE END ===================================================================================================
 
 // 게임 로직을 담당하는 함수
 void SoftRenderer::Update2D(float InDeltaSeconds)
@@ -65,15 +68,15 @@ void SoftRenderer::Update2D(float InDeltaSeconds)
 
 	// 게임 로직의 로컬 변수
 
-	// 2024 07 02 UPDATE
+	// 2024 07 02 UPDATE START =============================================================================================
+	// 설명 : 현재 위치를 이동시키는 로직을 구현한다.
 
-	static float moveSpeed = 100.0f;
+	static float moveSpeed = 100.0f;										// 이동 속도
+	Vector2 inputVector = Vector2(input.GetAxis(InputAxis::XAxis), input.GetAxis(InputAxis::YAxis)); // 입력 벡터
+	Vector2 deltaPosition = inputVector * moveSpeed * InDeltaSeconds;		// 이동량
 
-	Vector2 inputVector = Vector2(input.GetAxis(InputAxis::XAxis), input.GetAxis(InputAxis::YAxis));
-	Vector2 deltaPosition = inputVector * moveSpeed * InDeltaSeconds;
-
-	currentPosition += deltaPosition;
-
+	currentPosition += deltaPosition;										// 현재 위치 이동
+	// 2024 07 02 UPDATE END ===============================================================================================
 }
 
 // 렌더링 로직을 담당하는 함수
@@ -88,22 +91,26 @@ void SoftRenderer::Render2D()
 
 	// 렌더링 로직의 로컬 변수
 
-	static float lineLength = 500.0f;
-	Vector2 lineStart = currentPosition * lineLength;
-	Vector2 lineEnd = currentPosition * -lineLength;
-	r.DrawLine(lineStart, lineEnd, LinearColor::LightGray);
+	// 2024 07 02 RENDER START =============================================================================================
+	// 설명 : DrawPoint() 함수를 이용하여 현재 위치를 표시하고, DrawLine() 함수를 이용하여 현재 위치에서 선을 그린다.
+	
+	static float lineLength = 500.0f;										// 선의 길이
+	Vector2 lineStart = currentPosition * lineLength;						// 선의 시작점
+	Vector2 lineEnd = currentPosition * -lineLength;						// 선의 끝점		
+	r.DrawLine(lineStart, lineEnd, LinearColor::LightGray);					// 선 그리기	
 
-	r.DrawPoint(currentPosition, LinearColor::Blue);
-	r.DrawPoint(currentPosition + Vector2::UnitX, LinearColor::Blue);
-	r.DrawPoint(currentPosition - Vector2::UnitX, LinearColor::Blue);
-	r.DrawPoint(currentPosition + Vector2::UnitY, LinearColor::Blue);
-	r.DrawPoint(currentPosition - Vector2::UnitY, LinearColor::Blue);
-	r.DrawPoint(currentPosition + Vector2::One, LinearColor::Blue);
-	r.DrawPoint(currentPosition - Vector2::One, LinearColor::Blue);
-	r.DrawPoint(currentPosition + Vector2(1.f, 1.f), LinearColor::Blue);
-	r.DrawPoint(currentPosition - Vector2(1.f, 1.f), LinearColor::Blue);
+	r.DrawPoint(currentPosition, LinearColor::Blue);						// 현재 위치 표시
+	r.DrawPoint(currentPosition + Vector2::UnitX, LinearColor::Blue);		// 현재 위치에서 X축으로 1만큼 이동한 위치 표시
+	r.DrawPoint(currentPosition - Vector2::UnitX, LinearColor::Blue);		// 현재 위치에서 X축으로 -1만큼 이동한 위치 표시
+	r.DrawPoint(currentPosition + Vector2::UnitY, LinearColor::Blue);		// 현재 위치에서 Y축으로 1만큼 이동한 위치 표시
+	r.DrawPoint(currentPosition - Vector2::UnitY, LinearColor::Blue);		// 현재 위치에서 Y축으로 -1만큼 이동한 위치 표시
+	r.DrawPoint(currentPosition + Vector2::One, LinearColor::Blue);			// 현재 위치에서 대각선으로 1만큼 이동한 위치 표시
+	r.DrawPoint(currentPosition - Vector2::One, LinearColor::Blue);			// 현재 위치에서 대각선으로 -1만큼 이동한 위치 표시
+	r.DrawPoint(currentPosition + Vector2(1.f, 1.f), LinearColor::Blue);	// 현재 위치에서 대각선으로 1만큼 이동한 위치 표시
+	r.DrawPoint(currentPosition - Vector2(1.f, 1.f), LinearColor::Blue);	// 현재 위치에서 대각선으로 -1만큼 이동한 위치 표시
 
-	r.PushStatisticText("Coordinate ; " + currentPosition.ToString());
+	r.PushStatisticText("Coordinate ; " + currentPosition.ToString());		// 현재 위치 좌표 출력
+	// 2024 07 02 RENDER END ===============================================================================================
 }
 
 // 메시를 그리는 함수
