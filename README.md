@@ -1,49 +1,69 @@
-# CKSoftRenderer
+# README
 
-교육적 목적으로 고안된 소프트렌더러 프로젝트입니다. 
+## 프로젝트 개요
+이 프로젝트는 2D 게임의 객체 위치를 업데이트하고, 그걸 화면에 렌더링하는 기능을 구현한 거야. 게임 로직이랑 렌더링 로직이 공유하는 변수를 사용해서, 사용자 입력에 따라 객체의 위치를 변경하고, 그 위치를 기반으로 화면에 시각적 요소를 그리는 구조야.
 
-브랜치를 사용해 단계별로 코드가 구현되어 있으니 책의 가이드에 따라 올바른 브랜치를 다운받기 바랍니다. 
+## 코드 설명
 
-## 요구사항
-- 비주얼 스튜디오 2019 커뮤니티 혹은 비주얼 스튜디오 2022 커뮤니티
-- CMake 3.1버젼 이상 ( https://cmake.org/download/ ) 
-- 본 프로젝트는 윈도우만 지원합니다. 
+### 1. 변수 선언
+Vector2 currentPosition(100.0f, 100.0f); // 현재 위치
+- `currentPosition` 변수는 객체의 현재 위치를 저장해. 초기값은 (100.0, 100.0)으로 설정돼 있어.
 
-## 컴파일 방법
-- 소스를 다운 받은 후에 비주얼 스튜디오 2019는 CMake-VS-16-2019.bat 배치 파일을, 비주얼 스튜디오 2022는 CMake-VS-17-2022.bat 배치 파일을 실행합니다. 
-- 배치 파일을 실행하면 소스를 푼 폴더에 Project폴더와 솔루션 파일이 생성됩니다. 
-- 솔루션을 더블클릭해 비주얼 스튜디오를 열고 컴파일하고 실행합니다. 
+### 2. 게임 로직 업데이트 함수: `SoftRenderer::Update2D`
+이 함수는 게임 로직을 업데이트해.
 
-## 사용하는 키 
-| 키            | 기능           |
-| ------------- |:-------------:|
-| F1  | 일반 모드 |
-| F2  | 와이어 프레임 모드 |
-| F3  | 깊이 버퍼 모드 ( 3D 전용 ) |
-| F10 | 2D 엔진과 3D 엔진의 변경 |
-| 왼쪽,오른쪽 화살표 키 | 캐릭터 좌우 회전 |
-| 위,아래 화살표 키 | 캐릭터 전후 이동 |
-| 페이지 업,다운 | 카메라 FOV 조절 |
+void SoftRenderer::Update2D(float InDeltaSeconds)
+{
+    auto& g = Get2DGameEngine();
+    const InputManager& input = g.GetInputManager();
 
-## 일반 모드
-텍스쳐를 매핑해 렌더링합니다. 기즈모는 표시되나 본은 표시되지 않습니다. 
+    static float moveSpeed = 100.0f;
 
-구동이 느린 경우 Release 모드로 컴파일해 실행하기 바랍니다.
+    Vector2 inputVector = Vector2(input.GetAxis(InputAxis::XAxis), input.GetAxis(InputAxis::YAxis));
+    Vector2 deltaPosition = inputVector * moveSpeed * InDeltaSeconds;
 
-![일반 모드](https://github.com/onlybooks/gamemath/blob/main/Document/Normal.png "일반 모드")
+    currentPosition += deltaPosition;
+}
 
+- `Get2DGameEngine()`를 통해 게임 엔진을 참조해.
+- `InputManager`를 사용해서 입력을 받아와.
+- `moveSpeed`는 이동 속도를 나타내는 상수야.
+- `inputVector`는 X축과 Y축 입력을 받아서 벡터로 저장해.
+- `deltaPosition`은 입력 벡터에 속도랑 시간(`InDeltaSeconds`)을 곱해서 구한 이동 거리야.
+- `currentPosition`에 `deltaPosition`을 더해서 현재 위치를 업데이트해.
 
-## 와이어프레임 모드
-선을 사용해 외곽선만 렌더링합니다. 기즈모와 본을 모두 표시해줍니다. 
+### 3. 렌더링 함수: `SoftRenderer::Render2D`
+이 함수는 업데이트된 위치를 기반으로 객체를 렌더링해.
 
-![와이어프레임 모드](https://github.com/onlybooks/gamemath/blob/main/Document/Wireframe1.png "와이어프레임 모드")
+void SoftRenderer::Render2D()
+{
+    auto& r = GetRenderer();
+    const auto& g = Get2DGameEngine();
 
-가까이서 확대하는 경우 동차좌표계에서 삼각형이 분할되는 과정을 확인할 수 있습니다. 
+    DrawGizmo2D();
 
-![와이어프레임 모드 2](https://github.com/onlybooks/gamemath/blob/main/Document/Wireframe2.png "와이어프레임 모드 2")
+    static float lineLength = 500.0f;
+    Vector2 lineStart = currentPosition * lineLength;
+    Vector2 lineEnd = currentPosition * -lineLength;
+    r.DrawLine(lineStart, lineEnd, LinearColor::LightGray);
 
-## 깊이 버퍼 모드
-원근 투영 변환 후 깊이 값을 선형화시켜 보여줍니다.  
+    r.DrawPoint(currentPosition, LinearColor::Blue);
+    r.DrawPoint(currentPosition + Vector2::UnitX, LinearColor::Blue);
+    r.DrawPoint(currentPosition - Vector2::UnitX, LinearColor::Blue);
+    r.DrawPoint(currentPosition + Vector2::UnitY, LinearColor::Blue);
+    r.DrawPoint(currentPosition - Vector2::UnitY, LinearColor::Blue);
+    r.DrawPoint(currentPosition + Vector2::One, LinearColor::Blue);
+    r.DrawPoint(currentPosition - Vector2::One, LinearColor::Blue);
+    r.DrawPoint(currentPosition + Vector2(1.f, 1.f), LinearColor::Blue);
+    r.DrawPoint(currentPosition - Vector2(1.f, 1.f), LinearColor::Blue);
 
-![깊이 버퍼 모드](https://github.com/onlybooks/gamemath/blob/main/Document/Depth.png "깊이버퍼 모드")
+    r.PushStatisticText("Coordinate ; " + currentPosition.ToString());
+}
 
+- `GetRenderer()`를 통해 렌더러를 참조해.
+- `DrawGizmo2D()`를 호출해서 배경에 격자를 그려.
+- `lineLength`는 선의 길이를 나타내는 상수야.
+- `lineStart`와 `lineEnd`는 현재 위치를 기준으로 그려질 선의 시작과 끝 지점이야.
+- `r.DrawLine`을 사용해서 선을 그려.
+- `r.DrawPoint`를 사용해서 현재 위치랑 그 주변 여러 지점에 점을 그려.
+- `PushStatisticText`를 통해 현재 좌표를 텍스트로 출력해.
